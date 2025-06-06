@@ -4,34 +4,29 @@
   <meta charset="UTF-8">
   <title>Bestiario AR - Centauro</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- Librerías -->
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-
   <style>
     body, html {
       margin: 0;
       padding: 0;
       overflow: hidden;
-      font-family: Arial, sans-serif;
       background: black;
+      font-family: Arial, sans-serif;
     }
-
     #start-button {
       position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background: #000;
-      color: #fff;
+      background: black;
+      color: white;
       padding: 1em 2em;
       font-size: 18px;
       border-radius: 10px;
       z-index: 2000;
       cursor: pointer;
     }
-
     #loading {
       position: fixed;
       top: 50%;
@@ -45,7 +40,6 @@
       text-align: center;
       display: none;
     }
-
     #instructions {
       position: fixed;
       top: 20px;
@@ -59,25 +53,12 @@
       z-index: 999;
       display: none;
     }
-
-    #ar-scene {
-      width: 100vw;
-      height: 100vh;
-      position: fixed;
-      top: 0;
-      left: 0;
-    }
   </style>
 </head>
 <body>
 
-  <!-- Botón de inicio obligatorio -->
   <div id="start-button">Iniciar AR</div>
-
-  <!-- Indicador de carga -->
   <div id="loading">Cargando AR...</div>
-
-  <!-- Instrucciones -->
   <div id="instructions">
     <strong>Instrucciones:</strong><br>
     • Apunta la cámara hacia la imagen objetivo<br>
@@ -92,10 +73,13 @@
     device-orientation-permission-ui="enabled: true"
     renderer="colorManagement: true, physicallyCorrectLights: true"
     loading-screen="enabled: false"
-    mindar-image="imageTargetSrc: https://raw.githubusercontent.com/Rosco83/best/main/targets/targets.mind; autoStart: false;"
+    mindar-image="imageTargetSrc: https://rosco83.github.io/best/targets/targets.mind; autoStart: false;"
   >
     <a-assets>
-      <a-asset-item id="modelo3d" src="https://raw.githubusercontent.com/Rosco83/best/main/models/Centaur_Strength_0603045946_texture.glb"></a-asset-item>
+      <a-asset-item 
+        id="modelo3d" 
+        src="https://rosco83.github.io/best/models/Centaur_Strength_0603045946_texture.glb"
+      ></a-asset-item>
     </a-assets>
 
     <a-camera position="0 0 0" look-controls="enabled: false" wasd-controls="enabled: false"></a-camera>
@@ -109,15 +93,10 @@
         animation__rotation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear"
         animation__scale="property: scale; from: 0.1 0.1 0.1; to: 0.5 0.5 0.5; dur: 1000; easing: easeOutElastic"
       ></a-gltf-model>
-      <a-plane
-        position="0 -0.5 0"
-        rotation="-90 0 0"
-        width="2"
-        height="2"
-        color="#000"
-        opacity="0.3"
-        material="transparent: true"
-      ></a-plane>
+
+      <a-plane position="0 -0.5 0" rotation="-90 0 0" width="2" height="2"
+        color="#000" opacity="0.3" material="transparent: true">
+      </a-plane>
     </a-entity>
   </a-scene>
 
@@ -128,13 +107,11 @@
     const instructions = document.getElementById("instructions");
 
     scene.addEventListener("loaded", () => {
-      console.log("Escena cargada");
       startButton.addEventListener("click", async () => {
         startButton.style.display = "none";
         loading.style.display = "block";
         try {
           await scene.components["mindar-image"].start();
-          console.log("MindAR iniciado");
         } catch (e) {
           console.error("Error al iniciar MindAR:", e);
         }
@@ -142,7 +119,6 @@
     });
 
     scene.addEventListener("renderstart", () => {
-      console.log("Render iniciado");
       loading.style.display = "none";
       instructions.style.display = "block";
     });
