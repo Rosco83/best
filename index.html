@@ -54,12 +54,29 @@
       font-size: 14px;
       z-index: 999;
     }
+
+    #start-button {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: black;
+      color: white;
+      padding: 1em 2em;
+      font-size: 18px;
+      border-radius: 10px;
+      z-index: 2000;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
 
+  <!-- Botón para iniciar en iOS -->
+  <div id="start-button">Iniciar AR</div>
+
   <!-- Indicador de carga -->
-  <div id="loading">
+  <div id="loading" class="hidden">
     <div>Cargando AR...</div>
     <div style="margin-top: 10px;">Apunta la cámara hacia la imagen objetivo</div>
   </div>
@@ -74,7 +91,7 @@
 
   <a-scene
     id="ar-scene"
-    mindar-image="imageTargetSrc: https://raw.githubusercontent.com/Rosco83/bestiario-ar-completo/main/targets/targets.mind%202; autoStart: true; filterMinCF:0.001; filterBeta: 0.01;"
+    mindar-image="imageTargetSrc: https://raw.githubusercontent.com/Rosco83/bestiario-ar-completo/main/targets/targets.mind%202; autoStart: false; filterMinCF:0.001; filterBeta: 0.01;"
     vr-mode-ui="enabled: false"
     embedded
     device-orientation-permission-ui="enabled: true"
@@ -126,6 +143,13 @@
     const loading = document.getElementById('loading');
     const instructions = document.getElementById('instructions');
     const arTarget = document.querySelector('#ar-target');
+    const startButton = document.getElementById('start-button');
+
+    startButton.addEventListener('click', async () => {
+      startButton.style.display = 'none';
+      loading.classList.remove('hidden');
+      await scene.components['mindar-image'].start();
+    });
 
     scene.addEventListener('renderstart', () => {
       console.log('AR iniciado');
