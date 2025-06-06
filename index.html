@@ -5,7 +5,7 @@
   <title>Bestiario AR - Centauro</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Librerías necesarias -->
+  <!-- Librerías -->
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
@@ -15,14 +15,21 @@
       padding: 0;
       overflow: hidden;
       font-family: Arial, sans-serif;
+      background: black;
     }
 
-    #ar-scene {
-      width: 100vw;
-      height: 100vh;
+    #start-button {
       position: fixed;
-      top: 0;
-      left: 0;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #000;
+      color: #fff;
+      padding: 1em 2em;
+      font-size: 18px;
+      border-radius: 10px;
+      z-index: 2000;
+      cursor: pointer;
     }
 
     #loading {
@@ -36,9 +43,6 @@
       border-radius: 10px;
       z-index: 1000;
       text-align: center;
-    }
-
-    .hidden {
       display: none;
     }
 
@@ -53,36 +57,28 @@
       max-width: 300px;
       font-size: 14px;
       z-index: 999;
+      display: none;
     }
 
-    #start-button {
+    #ar-scene {
+      width: 100vw;
+      height: 100vh;
       position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: black;
-      color: white;
-      padding: 1em 2em;
-      font-size: 18px;
-      border-radius: 10px;
-      z-index: 2000;
-      cursor: pointer;
+      top: 0;
+      left: 0;
     }
   </style>
 </head>
 <body>
 
-  <!-- Botón para iniciar -->
+  <!-- Botón de inicio obligatorio -->
   <div id="start-button">Iniciar AR</div>
 
   <!-- Indicador de carga -->
-  <div id="loading" class="hidden">
-    <div>Cargando AR...</div>
-    <div style="margin-top: 10px;">Apunta la cámara hacia la imagen objetivo</div>
-  </div>
+  <div id="loading">Cargando AR...</div>
 
   <!-- Instrucciones -->
-  <div id="instructions" class="hidden">
+  <div id="instructions">
     <strong>Instrucciones:</strong><br>
     • Apunta la cámara hacia la imagen objetivo<br>
     • Mantén estable el dispositivo<br>
@@ -91,33 +87,21 @@
 
   <a-scene
     id="ar-scene"
-    mindar-image="imageTargetSrc: https://raw.githubusercontent.com/Rosco83/bestiario-ar-completo/main/targets/targets.mind%202; autoStart: false; filterMinCF:0.001; filterBeta: 0.01;"
-    vr-mode-ui="enabled: false"
     embedded
+    vr-mode-ui="enabled: false"
     device-orientation-permission-ui="enabled: true"
     renderer="colorManagement: true, physicallyCorrectLights: true"
     loading-screen="enabled: false"
+    mindar-image="imageTargetSrc: https://raw.githubusercontent.com/Rosco83/bestiario-ar-completo/main/targets/targets.mind%202; autoStart: false;"
   >
-    <a-camera
-      position="0 0 0"
-      look-controls="enabled: false"
-      wasd-controls="enabled: false"
-    ></a-camera>
-
     <a-assets>
-      <a-asset-item
-        id="modelo3d"
-        src="https://raw.githubusercontent.com/Rosco83/bestiario-ar-completo/main/models/Centaur_Strength_0603045946_texture.glb%202"
-        timeout="10000"
-      ></a-asset-item>
+      <a-asset-item id="modelo3d" src="https://raw.githubusercontent.com/Rosco83/bestiario-ar-completo/main/models/Centaur_Strength_0603045946_texture.glb%202"></a-asset-item>
     </a-assets>
 
-    <a-entity
-      id="ar-target"
-      mindar-image-target="targetIndex: 0"
-    >
+    <a-camera position="0 0 0" look-controls="enabled: false" wasd-controls="enabled: false"></a-camera>
+
+    <a-entity mindar-image-target="targetIndex: 0">
       <a-gltf-model
-        id="centauro"
         src="#modelo3d"
         position="0 0 0"
         rotation="0 0 0"
@@ -125,13 +109,12 @@
         animation__rotation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear"
         animation__scale="property: scale; from: 0.1 0.1 0.1; to: 0.5 0.5 0.5; dur: 1000; easing: easeOutElastic"
       ></a-gltf-model>
-
       <a-plane
         position="0 -0.5 0"
         rotation="-90 0 0"
         width="2"
         height="2"
-        color="#000000"
+        color="#000"
         opacity="0.3"
         material="transparent: true"
       ></a-plane>
@@ -139,46 +122,30 @@
   </a-scene>
 
   <script>
-    const scene = document.querySelector('#ar-scene');
-    const loading = document.getElementById('loading');
-    const instructions = document.getElementById('instructions');
-    const arTarget = document.querySelector('#ar-target');
-    const startButton = document.getElementById('start-button');
+    const scene = document.querySelector("#ar-scene");
+    const startButton = document.getElementById("start-button");
+    const loading = document.getElementById("loading");
+    const instructions = document.getElementById("instructions");
 
-    scene.addEventListener('loaded', () => {
-      console.log('Escena cargada');
-
-      startButton.addEventListener('click', async () => {
+    scene.addEventListener("loaded", () => {
+      console.log("Escena cargada");
+      startButton.addEventListener("click", async () => {
+        startButton.style.display = "none";
+        loading.style.display = "block";
         try {
-          startButton.style.display = 'none';
-          loading.classList.remove('hidden');
-
-          const mindarComponent = scene.components['mindar-image'];
-          if (mindarComponent) {
-            await mindarComponent.start();
-            console.log('MindAR iniciado');
-          } else {
-            console.error('MindAR no está cargado correctamente');
-          }
-
-        } catch (err) {
-          console.error('Error al iniciar MindAR:', err);
+          await scene.components["mindar-image"].start();
+          console.log("MindAR iniciado");
+        } catch (e) {
+          console.error("Error al iniciar MindAR:", e);
         }
       });
     });
 
-    scene.addEventListener('renderstart', () => {
-      console.log('AR render iniciado');
-      loading.classList.add('hidden');
-      instructions.classList.remove('hidden');
+    scene.addEventListener("renderstart", () => {
+      console.log("Render iniciado");
+      loading.style.display = "none";
+      instructions.style.display = "block";
     });
-
-    if (arTarget) {
-      arTarget.addEventListener('targetFound', () => {
-        console.log('Target encontrado');
-        instructions.classList.add('hidden');
-      });
-    }
   </script>
 </body>
 </html>
