@@ -80,4 +80,86 @@
     });
   </script>
 </body>
+</html><!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Bestiario AR - Centauro</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+  <style>
+    html, body { margin: 0; padding: 0; overflow: hidden; background: black; }
+    #start-button {
+      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      background: black; color: white; padding: 1em 2em;
+      font-size: 18px; border-radius: 10px; z-index: 9999;
+      cursor: pointer;
+    }
+    #loading {
+      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      background: rgba(0,0,0,0.8); color: white; padding: 20px;
+      border-radius: 10px; z-index: 999; display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="start-button">Iniciar AR</div>
+  <div id="loading">Cargando AR...</div>
+
+  <a-scene
+    id="ar-scene"
+    embedded
+    vr-mode-ui="enabled: false"
+    device-orientation-permission-ui="enabled: true"
+    renderer="colorManagement: true, physicallyCorrectLights: true"
+    loading-screen="enabled: false"
+    mindar-image="imageTargetSrc: https://rosco83.github.io/best/targets/targets.mind; autoStart: false;"
+  >
+    <a-assets>
+      <a-asset-item 
+        id="modelo3d" 
+        src="https://rosco83.github.io/best/models/Centaur_Strength_0603045946_texture.glb"
+        timeout="10000"
+      ></a-asset-item>
+    </a-assets>
+
+    <a-camera 
+      position="0 0 0" 
+      look-controls="enabled: false" 
+      wasd-controls="enabled: false"
+    ></a-camera>
+
+    <a-entity mindar-image-target="targetIndex: 0">
+      <a-gltf-model 
+        src="#modelo3d"
+        position="0 0 0"
+        rotation="0 0 0"
+        scale="0.5 0.5 0.5"
+        animation__rotation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear"
+        animation__scale="property: scale; from: 0.1 0.1 0.1; to: 0.5 0.5 0.5; dur: 1000; easing: easeOutElastic"
+      ></a-gltf-model>
+    </a-entity>
+  </a-scene>
+
+  <script>
+    const scene = document.querySelector("#ar-scene");
+    const startButton = document.getElementById("start-button");
+    const loading = document.getElementById("loading");
+
+    scene.addEventListener("loaded", () => {
+      startButton.addEventListener("click", async () => {
+        startButton.style.display = "none";
+        loading.style.display = "block";
+        try {
+          await scene.components["mindar-image"].start();
+          loading.style.display = "none";
+        } catch (e) {
+          console.error("Error al iniciar MindAR:", e);
+        }
+      });
+    });
+  </script>
+</body>
 </html>
