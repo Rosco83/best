@@ -1,164 +1,119 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Bestiario AR - Centauro</title>
+  <meta charset="utf-8">
+  <title>MindAR - Personajes 3D</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-  <style>
-    html, body { margin: 0; padding: 0; overflow: hidden; background: black; }
-    #start-button {
-      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      background: black; color: white; padding: 1em 2em;
-      font-size: 18px; border-radius: 10px; z-index: 9999;
-      cursor: pointer;
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/",
+      "mindar-image-three": "https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"
     }
-    #loading {
-      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      background: rgba(0,0,0,0.8); color: white; padding: 20px;
-      border-radius: 10px; z-index: 999; display: none;
-    }
-  </style>
-</head>
-<body>
-
-  <div id="start-button">Iniciar AR</div>
-  <div id="loading">Cargando AR...</div>
-
-  <a-scene
-    id="ar-scene"
-    embedded
-    vr-mode-ui="enabled: false"
-    device-orientation-permission-ui="enabled: true"
-    renderer="colorManagement: true, physicallyCorrectLights: true"
-    loading-screen="enabled: false"
-    mindar-image="imageTargetSrc: https://rosco83.github.io/best/targets/targets.mind; autoStart: false;"
-  >
-    <a-assets>
-      <a-asset-item 
-        id="modelo3d" 
-        src="https://rosco83.github.io/best/models/Centaur_Strength_0603045946_texture.glb"
-        timeout="10000"
-      ></a-asset-item>
-    </a-assets>
-
-    <a-camera 
-      position="0 0 0" 
-      look-controls="enabled: false" 
-      wasd-controls="enabled: false"
-    ></a-camera>
-
-    <a-entity mindar-image-target="targetIndex: 0">
-      <a-gltf-model 
-        src="#modelo3d"
-        position="0 0 0"
-        rotation="0 0 0"
-        scale="0.5 0.5 0.5"
-        animation__rotation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear"
-        animation__scale="property: scale; from: 0.1 0.1 0.1; to: 0.5 0.5 0.5; dur: 1000; easing: easeOutElastic"
-      ></a-gltf-model>
-    </a-entity>
-  </a-scene>
-
-  <script>
-    const scene = document.querySelector("#ar-scene");
-    const startButton = document.getElementById("start-button");
-    const loading = document.getElementById("loading");
-
-    scene.addEventListener("loaded", () => {
-      startButton.addEventListener("click", async () => {
-        startButton.style.display = "none";
-        loading.style.display = "block";
-        try {
-          await scene.components["mindar-image"].start();
-          loading.style.display = "none";
-        } catch (e) {
-          console.error("Error al iniciar MindAR:", e);
-        }
-      });
-    });
+  }
   </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Bestiario AR - Centauro</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+
   <style>
-    html, body { margin: 0; padding: 0; overflow: hidden; background: black; }
-    #start-button {
-      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      background: black; color: white; padding: 1em 2em;
-      font-size: 18px; border-radius: 10px; z-index: 9999;
-      cursor: pointer;
+    body { margin: 0; font-family: Arial; }
+    #container { width: 100vw; height: 100vh; position: relative; overflow: hidden; }
+    #control {
+      position: fixed; top: 10px; left: 10px; z-index: 2;
+      background: rgba(0,0,0,0.7); padding: 10px; border-radius: 5px;
     }
-    #loading {
-      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      background: rgba(0,0,0,0.8); color: white; padding: 20px;
-      border-radius: 10px; z-index: 999; display: none;
-    }
+    button { margin: 5px; padding: 10px; font-size: 16px; }
   </style>
 </head>
+
 <body>
+  <div id="control">
+    <button id="startButton">Iniciar AR</button>
+    <button id="stopButton">Detener</button>
+  </div>
+  <div id="container"></div>
 
-  <div id="start-button">Iniciar AR</div>
-  <div id="loading">Cargando AR...</div>
+  <script type="module">
+    import * as THREE from 'three';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    import { MindARThree } from 'mindar-image-three';
 
-  <a-scene
-    id="ar-scene"
-    embedded
-    vr-mode-ui="enabled: false"
-    device-orientation-permission-ui="enabled: true"
-    renderer="colorManagement: true, physicallyCorrectLights: true"
-    loading-screen="enabled: false"
-    mindar-image="imageTargetSrc: https://rosco83.github.io/best/targets/targets.mind; autoStart: false;"
-  >
-    <a-assets>
-      <a-asset-item 
-        id="modelo3d" 
-        src="https://rosco83.github.io/best/models/Centaur_Strength_0603045946_texture.glb"
-        timeout="10000"
-      ></a-asset-item>
-    </a-assets>
+    let mindarThree, mixer, clock;
 
-    <a-camera 
-      position="0 0 0" 
-      look-controls="enabled: false" 
-      wasd-controls="enabled: false"
-    ></a-camera>
-
-    <a-entity mindar-image-target="targetIndex: 0">
-      <a-gltf-model 
-        src="#modelo3d"
-        position="0 0 0"
-        rotation="0 0 0"
-        scale="0.5 0.5 0.5"
-        animation__rotation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear"
-        animation__scale="property: scale; from: 0.1 0.1 0.1; to: 0.5 0.5 0.5; dur: 1000; easing: easeOutElastic"
-      ></a-gltf-model>
-    </a-entity>
-  </a-scene>
-
-  <script>
-    const scene = document.querySelector("#ar-scene");
-    const startButton = document.getElementById("start-button");
-    const loading = document.getElementById("loading");
-
-    scene.addEventListener("loaded", () => {
-      startButton.addEventListener("click", async () => {
-        startButton.style.display = "none";
-        loading.style.display = "block";
-        try {
-          await scene.components["mindar-image"].start();
-          loading.style.display = "none";
-        } catch (e) {
-          console.error("Error al iniciar MindAR:", e);
-        }
+    const start = async () => {
+      mindarThree = new MindARThree({
+        container: document.querySelector("#container"),
+        imageTargetSrc: "https://rosco83.github.io/best/targets/targets.mind"
       });
+
+      const { renderer, scene, camera } = mindarThree;
+      clock = new THREE.Clock();
+
+      const ambientLight = new THREE.AmbientLight(0x404040, 1);
+      scene.add(ambientLight);
+
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+      directionalLight.position.set(1, 1, 1);
+      scene.add(directionalLight);
+
+      const anchor = mindarThree.addAnchor(0);
+
+      const loader = new GLTFLoader();
+      loader.load(
+        "https://rosco83.github.io/best/models/Centaur_Strength_0603045946_texture.glb",
+        function (gltf) {
+          const model = gltf.scene;
+          model.scale.set(0.1, 0.1, 0.1);
+          model.position.set(0, 0, 0);
+
+          if (gltf.animations && gltf.animations.length > 0) {
+            mixer = new THREE.AnimationMixer(model);
+            gltf.animations.forEach((clip) => {
+              const action = mixer.clipAction(clip);
+              action.play();
+            });
+          }
+
+          anchor.group.add(model);
+        },
+        function (progress) {
+          console.log('Cargando:', (progress.loaded / progress.total * 100) + '%');
+        },
+        function (error) {
+          console.error('Error cargando modelo:', error);
+        }
+      );
+
+      const particleGeometry = new THREE.BufferGeometry();
+      const particleCount = 100;
+      const positions = new Float32Array(particleCount * 3);
+      for (let i = 0; i < particleCount * 3; i++) {
+        positions[i] = (Math.random() - 0.5) * 2;
+      }
+      particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      const particleMaterial = new THREE.PointsMaterial({ color: 0x00ff88, size: 0.02 });
+      const particles = new THREE.Points(particleGeometry, particleMaterial);
+      anchor.group.add(particles);
+
+      anchor.onTargetFound = () => console.log("Imagen detectada!");
+      anchor.onTargetLost = () => console.log("Imagen perdida!");
+
+      await mindarThree.start();
+
+      renderer.setAnimationLoop(() => {
+        const delta = clock.getDelta();
+        if (mixer) mixer.update(delta);
+        if (particles) particles.rotation.y += 0.01;
+        renderer.render(scene, camera);
+      });
+    };
+
+    document.querySelector("#startButton").addEventListener("click", start);
+    document.querySelector("#stopButton").addEventListener("click", () => {
+      if (mindarThree) {
+        mindarThree.stop();
+        mindarThree.renderer.setAnimationLoop(null);
+      }
     });
   </script>
 </body>
