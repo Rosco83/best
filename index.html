@@ -26,6 +26,8 @@
       border-radius: 10px;
       z-index: 2000;
       cursor: pointer;
+      border: none; /* Añadido para mejor estilo */
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Añadido para mejor estilo */
     }
     #loading {
       position: fixed;
@@ -39,6 +41,7 @@
       z-index: 1000;
       text-align: center;
       display: none;
+      font-size: 16px;
     }
     #instructions {
       position: fixed;
@@ -53,17 +56,36 @@
       z-index: 999;
       display: none;
     }
+    /* Estilos para el mensaje de error/permisos */
+    #error-message {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(180, 0, 0, 0.9);
+      color: white;
+      padding: 25px;
+      border-radius: 10px;
+      z-index: 2100;
+      text-align: center;
+      display: none;
+      font-size: 18px;
+      box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+    }
   </style>
 </head>
 <body>
 
   <div id="start-button">Iniciar AR</div>
-  <div id="loading">Cargando AR...</div>
+  <div id="loading">Cargando AR... por favor, acepta los permisos de la cámara si se solicitan.</div>
   <div id="instructions">
     <strong>Instrucciones:</strong><br>
     • Apunta la cámara hacia la imagen objetivo<br>
     • Mantén estable el dispositivo<br>
     • Asegúrate de tener buena iluminación
+  </div>
+  <div id="error-message">
+    No se pudo acceder a la cámara. Por favor, asegúrate de haber concedido los permisos y que la página se esté ejecutando en HTTPS.
   </div>
 
   <a-scene
@@ -105,22 +127,40 @@
     const startButton = document.getElementById("start-button");
     const loading = document.getElementById("loading");
     const instructions = document.getElementById("instructions");
+    const errorMessage = document.getElementById("error-message"); // Referencia al nuevo mensaje de error
 
-    scene.addEventListener("loaded", () => {
-      startButton.addEventListener("click", async () => {
-        startButton.style.display = "none";
-        loading.style.display = "block";
-        try {
-          await scene.components["mindar-image"].start();
-        } catch (e) {
-          console.error("Error al iniciar MindAR:", e);
-        }
-      });
+    // Oculta todos los elementos al inicio excepto el botón de inicio
+    loading.style.display = "none";
+    instructions.style.display = "none";
+    errorMessage.style.display = "none";
+
+    startButton.addEventListener("click", async () => {
+      startButton.style.display = "none";
+      loading.style.display = "block"; // Muestra el mensaje de carga
+
+      try {
+        await scene.components["mindar-image"].start();
+      } catch (e) {
+        console.error("Error al iniciar MindAR:", e);
+        loading.style.display = "none"; // Oculta la carga
+        errorMessage.style.display = "block"; // Muestra el mensaje de error
+      }
     });
 
-    scene.addEventListener("renderstart", () => {
+    // Evento que se dispara cuando la escena AR comienza a renderizarse
+    scene.addEventListener("arReady", () => { // Usamos arReady en lugar de renderstart
+      loading.style.display = "none"; // Oculta la carga
+      instructions.style.display = "block"; // Muestra las instrucciones
+      errorMessage.style.display = "none"; // Asegúrate de que el mensaje de error esté oculto
+      console.log("MindAR está listo y la cámara debería estar activa.");
+    });
+
+    // Manejo de errores si MindAR no puede inicializarse por alguna razón (por ejemplo, permisos denegados)
+    scene.addEventListener("arError", (e) => {
+      console.error("Error crítico de MindAR:", e);
       loading.style.display = "none";
-      instructions.style.display = "block";
+      instructions.style.display = "none";
+      errorMessage.style.display = "block";
     });
   </script>
 </body>
