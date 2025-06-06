@@ -10,19 +10,19 @@
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
   <style>
-    body, html { 
-      margin: 0; 
-      padding: 0; 
-      overflow: hidden; 
+    body, html {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
       font-family: Arial, sans-serif;
     }
 
-    #ar-scene { 
-      width: 100vw; 
-      height: 100vh; 
-      position: fixed; 
-      top: 0; 
-      left: 0; 
+    #ar-scene {
+      width: 100vw;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
     }
 
     #loading {
@@ -72,7 +72,7 @@
 </head>
 <body>
 
-  <!-- Botón para iniciar en iOS -->
+  <!-- Botón para iniciar -->
   <div id="start-button">Iniciar AR</div>
 
   <!-- Indicador de carga -->
@@ -98,21 +98,21 @@
     renderer="colorManagement: true, physicallyCorrectLights: true"
     loading-screen="enabled: false"
   >
-    <a-camera 
-      position="0 0 0" 
+    <a-camera
+      position="0 0 0"
       look-controls="enabled: false"
       wasd-controls="enabled: false"
     ></a-camera>
 
     <a-assets>
-      <a-asset-item 
-        id="modelo3d" 
+      <a-asset-item
+        id="modelo3d"
         src="https://raw.githubusercontent.com/Rosco83/bestiario-ar-completo/main/models/Centaur_Strength_0603045946_texture.glb%202"
         timeout="10000"
       ></a-asset-item>
     </a-assets>
 
-    <a-entity 
+    <a-entity
       id="ar-target"
       mindar-image-target="targetIndex: 0"
     >
@@ -145,14 +145,30 @@
     const arTarget = document.querySelector('#ar-target');
     const startButton = document.getElementById('start-button');
 
-    startButton.addEventListener('click', async () => {
-      startButton.style.display = 'none';
-      loading.classList.remove('hidden');
-      await scene.components['mindar-image'].start();
+    scene.addEventListener('loaded', () => {
+      console.log('Escena cargada');
+
+      startButton.addEventListener('click', async () => {
+        try {
+          startButton.style.display = 'none';
+          loading.classList.remove('hidden');
+
+          const mindarComponent = scene.components['mindar-image'];
+          if (mindarComponent) {
+            await mindarComponent.start();
+            console.log('MindAR iniciado');
+          } else {
+            console.error('MindAR no está cargado correctamente');
+          }
+
+        } catch (err) {
+          console.error('Error al iniciar MindAR:', err);
+        }
+      });
     });
 
     scene.addEventListener('renderstart', () => {
-      console.log('AR iniciado');
+      console.log('AR render iniciado');
       loading.classList.add('hidden');
       instructions.classList.remove('hidden');
     });
