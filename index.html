@@ -43,7 +43,7 @@
     const start = async () => {
       mindarThree = new MindARThree({
         container: document.querySelector("#container"),
-        imageTargetSrc: "https://rosco83.github.io/best/targets/targets.mind"
+        imageTargetSrc: "https://rosco83.github.io/bestiario-ar-completo/targets/targets.mind"
       });
 
       const { renderer, scene, camera } = mindarThree;
@@ -60,11 +60,11 @@
 
       const loader = new GLTFLoader();
       loader.load(
-        "https://rosco83.github.io/best/models/Centaur_Strength_0603045946_texture.glb",
+        "https://rosco83.github.io/bestiario-ar-completo/models/Jirafa__0602220502_texture.glb",
         function (gltf) {
           const model = gltf.scene;
-          model.scale.set(1, 1, 1); // escala aumentada
-          model.position.set(0, -0.5, 0); // bajado para quedar sobre marcador
+          model.scale.set(1, 1, 1);
+          model.position.set(0, -0.5, 0);
 
           if (gltf.animations && gltf.animations.length > 0) {
             mixer = new THREE.AnimationMixer(model);
