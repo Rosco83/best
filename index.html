@@ -63,8 +63,8 @@
         "https://rosco83.github.io/best/models/Centaur_Strength_0603045946_texture.glb",
         function (gltf) {
           const model = gltf.scene;
-          model.scale.set(0.1, 0.1, 0.1);
-          model.position.set(0, 0, 0);
+          model.scale.set(1, 1, 1); // escala aumentada
+          model.position.set(0, -0.5, 0); // bajado para quedar sobre marcador
 
           if (gltf.animations && gltf.animations.length > 0) {
             mixer = new THREE.AnimationMixer(model);
